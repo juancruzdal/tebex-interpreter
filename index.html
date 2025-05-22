@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Base64 Viewer</title>
+  <title>Tebex TID Viewer</title>
   <style>
     body {
       font-family: sans-serif;
@@ -29,7 +29,7 @@
 </head>
 <body>
   <div class="container">
-    <h2>Compra desde Base64</h2>
+    <h2>Comprobante de compra</h2>
     <div id="output"></div>
   </div>
 
@@ -56,6 +56,7 @@
         const date = new Date(json.date).toLocaleDateString("en-GB");
 
         container.innerHTML = `
+          <p><strong>ID:</strong> ${json.id}</p>
           <p><strong>Status:</strong> ${json.status}</p>
           <p><strong>Player:</strong> ${json.player.name}</p>
           <p><strong>Date:</strong> ${date}</p>
