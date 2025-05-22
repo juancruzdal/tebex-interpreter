@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Base64 Viewer</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f7f7f7;
+      padding: 20px;
+    }
+    .container {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 0 10px #ccc;
+      max-width: 600px;
+      margin: auto;
+    }
+    h2 {
+      margin-top: 0;
+    }
+    pre {
+      background: #eee;
+      padding: 10px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Compra desde Base64</h2>
+    <div id="output"></div>
+  </div>
+
+  <script>
+    function getBase64Param() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get("data");
+    }
+
+    function base64UrlDecode(input) {
+      // Reconvertir URL-safe Base64 a estándar
+      input = input.replace(/-/g, '+').replace(/_/g, '/');
+      const pad = input.length % 4;
+      if (pad) input += "=".repeat(4 - pad);
+      return atob(input);
+    }
+
+    function renderJSON(data) {
+      const container = document.getElementById("output");
+      try {
+        const decoded = base64UrlDecode(data);
+        const json = JSON.parse(decoded);
+
+        const date = new Date(json.date).toLocaleDateString("en-GB");
+
+        container.innerHTML = `
+          <p><strong>Status:</strong> ${json.status}</p>
+          <p><strong>Player:</strong> ${json.player.name}</p>
+          <p><strong>Date:</strong> ${date}</p>
+          <p><strong>Amount:</strong> ${json.currency.symbol}${json.amount} (${json.currency.iso_4217})</p>
+          <p><strong>Packages:</strong></p>
+          <ul>
+            ${json.packages.map(p => `<li>${p.name}</li>`).join("")}
+          </ul>
+          <p><strong>Creator Code:</strong> ${json.creator_code}</p>
+          ${Array.isArray(json.notes) ? `
+            <p><strong>Notes:</strong></p>
+            <ul>${json.notes.map(note => `
+              <li>${note.note} (at ${note.created_at})</li>
+            `).join("")}</ul>
+          ` : ""}
+        `;
+      } catch (err) {
+        container.innerHTML = `<p style="color: red;">Error decoding data: ${err.message}</p>`;
+      }
+    }
+
+    const base64 = getBase64Param();
+    if (base64) {
+      renderJSON(base64);
+    } else {
+      document.getElementById("output").innerHTML = "<p>No base64 data provided in ?data=...</p>";
+    }
+  </script>
+</body>
+</html>
